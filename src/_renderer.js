@@ -40,6 +40,7 @@ const electron = require("electron");
 const remote = require("@electron/remote");
 const ipc = electron.ipcRenderer;
 
+require("@electron/remote/main").enable(electron.remote.getCurrentWindow().webContents)
 const settingsDir = remote.app.getPath("userData");
 const themesDir = path.join(settingsDir, "themes");
 const keyboardsDir = path.join(settingsDir, "keyboards");
@@ -66,7 +67,7 @@ if (electron.remote.process.argv.includes("--nocursor")) {
 }
 
 // Retrieve theme override (hotswitch)
-ipc.once("getThemeOverride", (e, theme) => {
+ipc.once("getThemeOverride", (_e, theme) => {
     if (theme !== null) {
         window.settings.theme = theme;
         window.settings.nointroOverride = true;
@@ -77,7 +78,7 @@ ipc.once("getThemeOverride", (e, theme) => {
 });
 ipc.send("getThemeOverride");
 // Same for keyboard override/hotswitch
-ipc.once("getKbOverride", (e, layout) => {
+ipc.once("getKbOverride", (_e, layout) => {
     if (layout !== null) {
         window.settings.keyboard = layout;
         window.settings.nointroOverride = true;
@@ -484,10 +485,10 @@ async function initUI() {
         document.getElementById("shell_tab0").innerHTML = `<p>MAIN - ${p}</p>`;
     };
     // Prevent losing hardware keyboard focus on the terminal when using touch keyboard
-    window.onmouseup = e => {
+    window.onmouseup = () => {
         if (window.keyboard.linkedToTerm) window.term[window.currentTerm].term.focus();
     };
-    window.term[0].term.writeln("\033[1m"+`Welcome to eDEX-UI v${electron.remote.app.getVersion()} - Electron v${process.versions.electron}`+"\033[0m");
+    window.term[0].term.writeln("\x33[1m"+`Welcome to eDEX-UI v${electron.remote.app.getVersion()} - Electron v${process.versions.electron}`+"\x33[0m");
 
     await _delay(100);
 
